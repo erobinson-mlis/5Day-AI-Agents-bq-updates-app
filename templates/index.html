@@ -113,9 +113,9 @@
                 <button class="btn btn-secondary btn-sm" id="clear-selection-btn">Clear</button>
                 <button class="btn btn-primary btn-sm btn-tweet-selected" id="tweet-selected-btn">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                        <path d="M21.327 10.13c0-4.795-3.078-6.196-3.078-6.196C16.828 3.2 14.153 3 11.968 3c-2.185 0-4.86.2-6.28 1.071 0 0-3.079 1.4-3.079 6.196 0 .506-.007 1.1-.007 1.764 0 5.485.405 10.923 5.39 12.015 2.196.48 4.316.587 6.136.506 3.195-.143 5.022-1.3 5.022-1.3l-.11-2.126s-2.022.617-5.022.506c-2.93-.109-6.027-.375-6.422-3.957-.044-.396-.048-.772-.048-.772s2.836.685 6.422.81c1.833.064 3.58-.195 5.3-.475 3.39-.554 6.388-3.056 6.388-7.79 0-.663-.007-1.258-.007-1.764zm-3.666 5.236h-2.072v-5.263c0-1.077-.456-1.62-1.362-1.62-.998 0-1.498.647-1.498 1.928v2.879H10.63v-2.88c0-1.28-.5-1.928-1.497-1.928-.908 0-1.364.543-1.364 1.62v5.263H5.698V9.734c0-1.077.275-1.94.825-2.585.568-.663 1.3-.997 2.222-.997.97 0 1.7.37 2.176 1.109l.635 1.062.636-1.062c.473-.74 1.206-1.11 2.175-1.11.92 0 1.654.334 2.223.998.55.645.825 1.508.825 2.585v5.636z"></path>
                     </svg>
-                    Tweet Selected
+                    Share Selected
                 </button>
             </div>
         </div>
@@ -126,17 +126,27 @@
         </section>
     </main>
 
-    <!-- Tweet Composer Modal -->
+    <!-- Mastodon Composer Modal -->
     <div class="modal-backdrop" id="tweet-modal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>Compose Tweet</h3>
+                <h3>Share on Mastodon</h3>
                 <button class="close-modal-btn" id="close-modal">&times;</button>
             </div>
+            
             <div class="modal-body">
+                <!-- Instance Config Input -->
+                <div class="instance-input-group">
+                    <label for="mastodon-instance">Mastodon Instance</label>
+                    <div class="instance-input-wrapper">
+                        <span class="url-prefix">https://</span>
+                        <input type="text" id="mastodon-instance" placeholder="mastodon.social" autocomplete="off">
+                    </div>
+                </div>
+
                 <div class="tweet-composer-container">
-                    <!-- Text Area for Tweet -->
-                    <textarea id="tweet-text" rows="6" maxlength="280" placeholder="What's happening?"></textarea>
+                    <!-- Text Area for Toot -->
+                    <textarea id="tweet-text" rows="6" maxlength="280" placeholder="What's new in BigQuery?"></textarea>
                     
                     <!-- Live Character Count & Progress Indicator -->
                     <div class="tweet-footer">
@@ -150,9 +160,9 @@
                     </div>
                 </div>
 
-                <!-- Simulated Tweet Preview -->
+                <!-- Simulated Mastodon Preview -->
                 <div class="simulated-tweet-box">
-                    <div class="tweet-preview-header">Simulated X Preview</div>
+                    <div class="tweet-preview-header">Simulated Mastodon Preview</div>
                     <div class="tweet-preview-content">
                         <div class="tweet-avatar">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -162,7 +172,7 @@
                         <div class="tweet-details">
                             <div class="tweet-user-info">
                                 <span class="display-name">Cloud Explorer</span>
-                                <span class="username">@cloud_notes</span>
+                                <span class="username" id="simulated-handle">@cloud_notes@mastodon.social</span>
                                 <span class="dot">&middot;</span>
                                 <span class="time-ago">Just now</span>
                             </div>
@@ -178,9 +188,9 @@
                 <button class="btn btn-secondary" id="cancel-tweet-btn">Cancel</button>
                 <button class="btn btn-tweet-action" id="publish-tweet-btn">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                        <path d="M21.327 10.13c0-4.795-3.078-6.196-3.078-6.196C16.828 3.2 14.153 3 11.968 3c-2.185 0-4.86.2-6.28 1.071 0 0-3.079 1.4-3.079 6.196 0 .506-.007 1.1-.007 1.764 0 5.485.405 10.923 5.39 12.015 2.196.48 4.316.587 6.136.506 3.195-.143 5.022-1.3 5.022-1.3l-.11-2.126s-2.022.617-5.022.506c-2.93-.109-6.027-.375-6.422-3.957-.044-.396-.048-.772-.048-.772s2.836.685 6.422.81c1.833.064 3.58-.195 5.3-.475 3.39-.554 6.388-3.056 6.388-7.79 0-.663-.007-1.258-.007-1.764zm-3.666 5.236h-2.072v-5.263c0-1.077-.456-1.62-1.362-1.62-.998 0-1.498.647-1.498 1.928v2.879H10.63v-2.88c0-1.28-.5-1.928-1.497-1.928-.908 0-1.364.543-1.364 1.62v5.263H5.698V9.734c0-1.077.275-1.94.825-2.585.568-.663 1.3-.997 2.222-.997.97 0 1.7.37 2.176 1.109l.635 1.062.636-1.062c.473-.74 1.206-1.11 2.175-1.11.92 0 1.654.334 2.223.998.55.645.825 1.508.825 2.585v5.636z"></path>
                     </svg>
-                    Tweet on X
+                    Share on Mastodon
                 </button>
             </div>
         </div>
