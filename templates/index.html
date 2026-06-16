@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Hub</title>
+    <meta name="description" content="Browse, search, and filter Google Cloud BigQuery release notes. Select updates and share them on Twitter (X) with a live preview.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Favicon placeholder or styling -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M3 5V19A9 3 0 0 0 21 19V5"></path>
+                        <path d="M3 12A9 3 0 0 0 21 12"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1>BigQuery Release Notes</h1>
+                    <p class="subtitle">Stay updated with Google Cloud BigQuery releases</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <span class="status-badge" id="cache-status">Checking...</span>
+                <button class="btn btn-refresh" id="refresh-btn" title="Refresh Release Notes">
+                    <svg class="icon-spin" id="refresh-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- Controls & Filters Section -->
+        <section class="controls-panel">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search updates (e.g. Gemini, Studio, metadata)..." autocomplete="off">
+                <button id="clear-search" class="clear-btn" style="display: none;">&times;</button>
+            </div>
+            
+            <div class="filters-group">
+                <div class="filter-wrapper">
+                    <label for="type-filter">Type</label>
+                    <select id="type-filter">
+                        <option value="all">All Types</option>
+                        <option value="feature">Features</option>
+                        <option value="change">Changes</option>
+                        <option value="issue">Issues</option>
+                        <option value="announcement">Announcements</option>
+                        <option value="breaking">Breaking</option>
+                    </select>
+                </div>
+                
+                <div class="filter-wrapper">
+                    <label for="sort-order">Sort By</label>
+                    <select id="sort-order">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stats-left">
+                Showing <span id="visible-count">0</span> of <span id="total-count">0</span> updates
+            </div>
+            <div class="stats-right" id="multi-select-actions" style="display: none;">
+                <span class="selected-text"><span id="selected-count">0</span> updates selected</span>
+                <button class="btn btn-secondary btn-sm" id="clear-selection-btn">Clear</button>
+                <button class="btn btn-primary btn-sm btn-tweet-selected" id="tweet-selected-btn">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                    Tweet Selected
+                </button>
+            </div>
+        </div>
+
+        <!-- Release Notes Feed Grid -->
+        <section class="feed-grid" id="feed-container">
+            <!-- Skeleton items are dynamically rendered here when loading -->
+        </section>
+    </main>
+
+    <!-- Tweet Composer Modal -->
+    <div class="modal-backdrop" id="tweet-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Compose Tweet</h3>
+                <button class="close-modal-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tweet-composer-container">
+                    <!-- Text Area for Tweet -->
+                    <textarea id="tweet-text" rows="6" maxlength="280" placeholder="What's happening?"></textarea>
+                    
+                    <!-- Live Character Count & Progress Indicator -->
+                    <div class="tweet-footer">
+                        <div class="char-count-container">
+                            <svg class="progress-ring" width="24" height="24">
+                                <circle class="progress-ring__circle-bg" stroke="#1f2937" stroke-width="2.5" fill="transparent" r="9" cx="12" cy="12" />
+                                <circle class="progress-ring__circle" id="char-progress" stroke="#10b981" stroke-width="2.5" fill="transparent" r="9" cx="12" cy="12" />
+                            </svg>
+                            <span id="char-count">280</span> remaining
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulated Tweet Preview -->
+                <div class="simulated-tweet-box">
+                    <div class="tweet-preview-header">Simulated X Preview</div>
+                    <div class="tweet-preview-content">
+                        <div class="tweet-avatar">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"></path>
+                            </svg>
+                        </div>
+                        <div class="tweet-details">
+                            <div class="tweet-user-info">
+                                <span class="display-name">Cloud Explorer</span>
+                                <span class="username">@cloud_notes</span>
+                                <span class="dot">&middot;</span>
+                                <span class="time-ago">Just now</span>
+                            </div>
+                            <div class="tweet-body-text" id="tweet-preview-text">
+                                Preview text will appear here...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancel-tweet-btn">Cancel</button>
+                <button class="btn btn-tweet-action" id="publish-tweet-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                    Tweet on X
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>© 2026 BigQuery Release Notes Hub. Powered by Python Flask, Vanilla CSS & JS.</p>
+        <p class="source-link">Data sourced dynamically from <a href="https://docs.cloud.google.com/feeds/bigquery-release-notes.xml" target="_blank" rel="noopener">Google Cloud RSS Feed</a></p>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
