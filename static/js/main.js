@@ -39,6 +39,7 @@ const publishTweetBtn = document.getElementById('publish-tweet-btn');
 
 // Initial Setup
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     fetchReleases();
     setupEventListeners();
 });
@@ -93,6 +94,12 @@ function setupEventListeners() {
     const exportCsvBtn = document.getElementById('export-csv-btn');
     if (exportCsvBtn) {
         exportCsvBtn.addEventListener('click', exportToCSV);
+    }
+    
+    // Theme Toggle action
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', toggleTheme);
     }
 }
 
@@ -582,4 +589,38 @@ function exportToCSV() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// Theme management functions
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeToggleIcon('light');
+    } else {
+        document.body.classList.remove('light-theme');
+        updateThemeToggleIcon('dark');
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-theme');
+    const theme = isLight ? 'light' : 'dark';
+    localStorage.setItem('theme', theme);
+    updateThemeToggleIcon(theme);
+}
+
+function updateThemeToggleIcon(theme) {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (!themeToggleBtn) return;
+    const sunIcon = themeToggleBtn.querySelector('.sun-icon');
+    const moonIcon = themeToggleBtn.querySelector('.moon-icon');
+    
+    if (theme === 'light') {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+    } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    }
 }
