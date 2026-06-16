@@ -427,16 +427,23 @@ function generateTweetText(updates) {
         // Link suffix
         const suffix = `\n\nRead more: ${u.link}`;
         
-        // Allowed content length = 280 - prefix - suffix
-        const maxContentLength = 280 - prefix.length - suffix.length;
+        // Type prefix
+        const typePrefix = `[${u.type.toUpperCase()}] `;
+        
+        // Allowed content length = 280 - prefix.length - typePrefix.length - suffix.length
+        const maxContentLength = Math.max(0, 280 - prefix.length - typePrefix.length - suffix.length);
         
         // Clean text description of the release note
         let content = u.content_text.replace(/\s+/g, ' ');
         if (content.length > maxContentLength) {
-            content = content.substring(0, maxContentLength - 3) + '...';
+            if (maxContentLength > 3) {
+                content = content.substring(0, maxContentLength - 3) + '...';
+            } else {
+                content = content.substring(0, maxContentLength);
+            }
         }
         
-        return `${prefix}[${u.type.toUpperCase()}] ${content}${suffix}`;
+        return `${prefix}${typePrefix}${content}${suffix}`;
     } else {
         // Multi-tweet generation
         const header = `📢 Google Cloud #BigQuery Updates:\n`;
