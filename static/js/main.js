@@ -88,6 +88,12 @@ function setupEventListeners() {
     cancelTweetBtn.addEventListener('click', closeTweetComposer);
     publishTweetBtn.addEventListener('click', publishTweet);
     tweetText.addEventListener('input', handleTweetTextInput);
+    
+    // Export CSV action
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', exportToCSV);
+    }
 }
 
 // Fetch Release Notes
@@ -181,7 +187,8 @@ function showError(message) {
 }
 
 // Client Side Filter & Render
-function renderFilteredUpdates() {
+// Filter helper
+function getFilteredUpdates() {
     let filtered = [...state.updates];
     
     // Apply search filter
@@ -200,8 +207,15 @@ function renderFilteredUpdates() {
     
     // Apply sort order
     if (state.filters.sort === 'oldest') {
-        filtered.reverse(); // Default is newest first (as feed is delivered)
+        filtered.reverse();
     }
+    
+    return filtered;
+}
+
+// Client Side Filter & Render
+function renderFilteredUpdates() {
+    const filtered = getFilteredUpdates();
     
     // Update stats count labels
     totalCount.textContent = state.updates.length;
@@ -257,11 +271,22 @@ function createCardElement(update) {
                 <span class="card-date">${update.date}</span>
             </div>
             
-            <button class="btn-card-tweet" title="Tweet this update" data-tweet-id="${update.id}">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-                </svg>
-            </button>
+            <div class="card-actions">
+                <button class="btn-card-copy" title="Copy text to clipboard" data-copy-id="${update.id}">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="copy-icon">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon" style="display: none;">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </button>
+                <button class="btn-card-tweet" title="Tweet this update" data-tweet-id="${update.id}">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
         
         <div class="card-body">
@@ -296,6 +321,38 @@ function createCardElement(update) {
         toggleCardSelection(update.id);
     });
     
+    // Bind Copy button specifically
+    const copyBtn = card.querySelector('.btn-card-copy');
+    copyBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        
+        // Build the text to copy
+        const copyText = `Google Cloud BigQuery Update (${update.date}) [${update.type.toUpperCase()}]:\n\n${update.content_text}\n\nRead more: ${update.link}`;
+        
+        try {
+            await navigator.clipboard.writeText(copyText);
+            
+            // Visual success state
+            copyBtn.classList.add('copied');
+            const copyIcon = copyBtn.querySelector('.copy-icon');
+            const checkIcon = copyBtn.querySelector('.check-icon');
+            
+            copyIcon.style.display = 'none';
+            checkIcon.style.display = 'block';
+            copyBtn.title = 'Copied!';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyIcon.style.display = 'block';
+                checkIcon.style.display = 'none';
+                copyBtn.title = 'Copy text to clipboard';
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy to clipboard.');
+        }
+    });
+
     // Bind Tweet button specifically
     const tweetBtn = card.querySelector('.btn-card-tweet');
     tweetBtn.addEventListener('click', (e) => {
@@ -475,4 +532,54 @@ function publishTweet() {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
     closeTweetComposer();
+}
+
+// Export CSV handler
+function exportToCSV() {
+    if (state.updates.length === 0) {
+        alert('No data available to export.');
+        return;
+    }
+    
+    const filtered = getFilteredUpdates();
+    if (filtered.length === 0) {
+        alert('No matching updates found to export.');
+        return;
+    }
+    
+    // Prepare header and rows
+    const headers = ["Date", "Update Type", "Official Link", "Details"];
+    const rows = filtered.map(u => [
+        u.date,
+        u.type,
+        u.link,
+        u.content_text
+    ]);
+    
+    // Format cell value: double quotes are escaped by doubling them
+    const escapeCSV = (val) => {
+        if (val === null || val === undefined) return '';
+        const strVal = String(val);
+        const escaped = strVal.replace(/"/g, '""');
+        return `"${escaped}"`;
+    };
+    
+    const csvContent = [
+        headers.map(escapeCSV).join(','),
+        ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\r\n');
+    
+    // Trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const today = new Date().toISOString().split('T')[0];
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bigquery_releases_${today}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }

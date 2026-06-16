@@ -544,6 +544,37 @@ body {
     background-color: var(--color-default-bg);
 }
 
+/* Card Header Actions */
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/* Copy Button on Card */
+.btn-card-copy {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.375rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.btn-card-copy:hover {
+    color: var(--color-feature);
+    background-color: rgba(16, 185, 129, 0.08);
+}
+
+.btn-card-copy.copied {
+    color: var(--color-feature);
+    background-color: rgba(16, 185, 129, 0.15);
+}
+
 /* Tweet Button on Card */
 .btn-card-tweet {
     background: transparent;
