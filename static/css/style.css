@@ -618,7 +618,8 @@ body {
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.375rem;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -636,13 +637,14 @@ body {
     background-color: rgba(16, 185, 129, 0.15);
 }
 
-/* Tweet Button on Card */
-.btn-card-tweet {
+/* Share Button on Card */
+.btn-card-share {
     background: transparent;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.375rem;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -650,9 +652,15 @@ body {
     transition: var(--transition-fast);
 }
 
-.btn-card-tweet:hover {
+.btn-card-share:hover {
     color: var(--accent-twitter);
-    background-color: rgba(29, 155, 240, 0.08);
+    background-color: rgba(99, 100, 255, 0.08);
+}
+
+/* Prevent inner elements from capturing clicks, making event targeting robust */
+.btn-card-copy svg,
+.btn-card-share svg {
+    pointer-events: none;
 }
 
 /* Card Content Body */

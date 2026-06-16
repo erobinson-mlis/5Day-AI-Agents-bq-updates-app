@@ -300,7 +300,7 @@ function createCardElement(update) {
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 </button>
-                <button class="btn-card-tweet" title="Share on Mastodon" data-tweet-id="${update.id}">
+                <button class="btn-card-share" title="Share on Mastodon" data-tweet-id="${update.id}">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
                         <path d="M21.327 10.13c0-4.795-3.078-6.196-3.078-6.196C16.828 3.2 14.153 3 11.968 3c-2.185 0-4.86.2-6.28 1.071 0 0-3.079 1.4-3.079 6.196 0 .506-.007 1.1-.007 1.764 0 5.485.405 10.923 5.39 12.015 2.196.48 4.316.587 6.136.506 3.195-.143 5.022-1.3 5.022-1.3l-.11-2.126s-2.022.617-5.022.506c-2.93-.109-6.027-.375-6.422-3.957-.044-.396-.048-.772-.048-.772s2.836.685 6.422.81c1.833.064 3.58-.195 5.3-.475 3.39-.554 6.388-3.056 6.388-7.79 0-.663-.007-1.258-.007-1.764zm-3.666 5.236h-2.072v-5.263c0-1.077-.456-1.62-1.362-1.62-.998 0-1.498.647-1.498 1.928v2.879H10.63v-2.88c0-1.28-.5-1.928-1.497-1.928-.908 0-1.364.543-1.364 1.62v5.263H5.698V9.734c0-1.077.275-1.94.825-2.585.568-.663 1.3-.997 2.222-.997.97 0 1.7.37 2.176 1.109l.635 1.062.636-1.062c.473-.74 1.206-1.11 2.175-1.11.92 0 1.654.334 2.223.998.55.645.825 1.508.825 2.585v5.636z"></path>
                     </svg>
@@ -324,10 +324,10 @@ function createCardElement(update) {
         </div>
     `;
     
-    // Bind selection event (clicking anywhere except interactive links, buttons or selection overlay)
+    // Bind selection event (clicking anywhere except interactive links, buttons, action groups or selection overlay)
     card.addEventListener('click', (e) => {
-        // Skip toggle if user clicked on standard links or buttons inside the card
-        if (e.target.closest('a') || e.target.closest('button')) {
+        // Skip toggle if user clicked on standard links, buttons or action bars inside the card
+        if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.card-actions')) {
             return;
         }
         toggleCardSelection(update.id);
@@ -372,9 +372,9 @@ function createCardElement(update) {
         }
     });
 
-    // Bind Tweet button specifically
-    const tweetBtn = card.querySelector('.btn-card-tweet');
-    tweetBtn.addEventListener('click', (e) => {
+    // Bind Share button specifically
+    const shareBtn = card.querySelector('.btn-card-share');
+    shareBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         openTweetComposer([update]);
     });
