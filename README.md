@@ -10,10 +10,10 @@ A modern web application built using **Python Flask** and **Vanilla HTML5, CSS3,
 *   **Performance Optimization**: Utilizes an in-memory server-side cache (10-minute expiry) to guarantee immediate load times and avoid rate limits.
 *   **On-Demand Sync**: Includes a manual **Refresh** button with a spinner animation that bypasses the cache to query the live RSS feed.
 *   **Unified Filter & Search**: Client-side full-text search across updates, categories, or dates, combined with dropdown category filters and chronological sorting.
-*   **Interactive X (Twitter) Composer**:
-    *   Direct "Tweet" buttons on every card, plus **checkbox multi-select** to compile and share multiple updates simultaneously.
-    *   An overlay composer modal featuring live character count limits (280-char max), a dynamic SVG circular progress ring, and a simulated X tweet card preview.
-    *   One-click redirection to X Web Intent with url-encoded payloads.
+*   **Interactive Mastodon Composer**:
+    *   Direct "Share" buttons on every card, plus **checkbox multi-select** to compile and share multiple updates simultaneously.
+    *   An overlay composer modal featuring live character count limits (280-char max), a dynamic SVG circular progress ring, and a simulated Mastodon post preview.
+    *   Saves the user's Mastodon instance preference (e.g., `mastodon.social`) to `localStorage` and redirects to the decentralized Web Share Intent (`https://<instance-domain>/share?text=<payload>`).
 
 ---
 
@@ -31,7 +31,7 @@ bq-releases-notes/
     ├── css/
     │   └── style.css       # Design variables, glassmorphic tokens, and animations
     └── js/
-        └── main.js         # Client-side state, filtering, and Tweet compiler logic
+        └── main.js         # Client-side state, filtering, and Mastodon share compiler logic
 ```
 
 ---
@@ -84,7 +84,7 @@ By default, the application runs on **Port 5000**. Navigate to [http://localhost
   - `Cached (As of HH:MM)` indicates data served from memory cache.
 - Click **Refresh** at any time to force a sync from Google. The button icon will spin during the fetch.
 
-### Tweeting Updates
-1. **Choose an update**: Either click the direct Tweet button (bird icon) on a single card, or toggle the selection checkboxes on multiple cards.
-2. **Review in Modal**: If multi-selecting, the floating blue action bar at the top right displays the selected count. Click "Tweet Selected" to open the composer.
-3. **Edit & Share**: Review the pre-populated text in the editor, inspect the live preview card, and click **Tweet on X** to open the Twitter Web Intent window.
+### Sharing Updates on Mastodon
+1. **Choose an update**: Either click the direct share button (Mastodon icon) on a single card, or toggle the selection checkboxes on multiple cards.
+2. **Review in Modal**: If multi-selecting, the action bar displays the selected count. Click "Share Selected" to open the composer.
+3. **Configure & Share**: Enter your Mastodon instance domain (e.g., `mastodon.social`, saved to `localStorage` for future visits), review the post's text and live simulated preview, and click **Share on Mastodon** to open the Mastodon Web Share Intent page.
